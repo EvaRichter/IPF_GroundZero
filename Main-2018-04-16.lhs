@@ -15,7 +15,10 @@
 > import Intervals.IntervalType
 >
 > 
-> 
+> main :: IO() 
+> main =  foldl (>>) (return()) [readDrawIPFTypeTwo (dimensions!!5) indMx indMg | indMx <- [1..numTestMx], indMg <- [1..numTestMg]] 
+>
+>
 > numIt = 10 -- number of iterations, in the end here should be a 10
 > numTestMx = 10
 > numTestMg = 10
@@ -96,14 +99,16 @@
 >                                   mg <- getMarginals (n,m) j 
 >                                   drawGraphs $ saveIPF mx mg
 >                                      where drawGraphs :: Maybe [(Array (Int,Int) Interval)] -> IO()
->                                            drawGraphs Nothing = errorTexFileTwo
->                                            drawGraphs (Just a)  = buildGraphicTwo $ map ivBoundDeviations a
+>                                            drawGraphs Nothing  = errorTexFileTwo
+>                                            drawGraphs (Just a) = buildGraphicTwo path $ map ivBoundDeviations a
+>                                            path                = "IPFGraphResults/Type2/"++show(n)++"by"++show(m)++"/mat"++show(i)++"marg"++show(j)++".tex"  
 >
->
+> {-
 > drawGraphsDirect :: Maybe [(Array (Int,Int) Interval)] -> IO()
 > drawGraphsDirect Nothing = errorTexFileTwo
 > drawGraphsDirect (Just a)  = buildGraphicTwo $ map ivBoundDeviations a
-> 
+> -}
+>
 > {- Mattis Test
 > readTestIPFTypeTwo ::(Int,Int) -> Int -> Int -> IO()
 > readTestIPFTypeTwo (n,m) i j = do mx <- getMatrix (n,m) i
@@ -115,7 +120,7 @@
 >                                                                  show (map ivBoundDeviations (tail a))
 > -}
 > {-probiere ohne file einlesen mit direkter Eingabe
-> -}
+> 
 > 
 > muttitest :: (Array (Int,Int) Interval) -> IO()
 > muttitest arr  =  drawGraphs $ saveIPF (innerArr arr) ((fstLine arr), (fstCol arr))
@@ -125,7 +130,7 @@
 > 
 >
 > 
-> {- gets dimensions and a number for a matrix and a pair of marginals, reads the files from
+>  gets dimensions and a number for a matrix and a pair of marginals, reads the files from
 > IPFTestInput/[n]by[m]/[matricies/marginals]/[i/j].txt,
 >    performs IPF on them after converting the numbers to intervals. Then writes the result
 > with all steps in a file to 
@@ -167,7 +172,7 @@
 >
 > readDoubleMarginalsToInterval :: String -> ([Interval],[Interval])
 > readDoubleMarginalsToInterval s = (map double2Interval mcol, map double2Interval mrow)
->                                     where (mcol, mrow) = readDoubleMarginals s
+>                                     where (mrow, mcol) = readDoubleMarginals s
 >
 
 > readMatrix :: (Read a, Signed a, Eq a, Num a, Show a, Fractional a) => String -> (Array (Int,Int) a)
@@ -196,7 +201,8 @@
 > writeIPF :: IPFNum a => FilePath -> (Array (Int,Int) a) -> ([a],[a]) -> IO ()
 > writeIPF path mx (mcol, mrow)
 >              | (uj - lj + 1) /= length mcol || (ui - li + 1) /= length mrow =
->                                  writeFile path "Marginal lengths do not match array bounds."
+>                                  writeFile path $ "Marginal lengths do not match array bounds. uj - lj + 1 = " 
+>                                                    ++ show (uj -lj +1) ++ "aber mcol ist " ++ show(length mcol) ++ "lang."
 >              | sumsDontMatch (simpleSum mcol) (simpleSum mrow) =
 >                                  writeFile path "Illegal marginal entries."            
 >              | not (isAllPositive (fuseArr mx mcol mrow))  =
@@ -208,14 +214,16 @@
 >                     simpleSum l = foldl maybeplus (Just 0) (map toDouble l)
 > 
 >                     maybeplus Nothing  _        = Nothing
->                     maybeplus (Just a) Nothing  = Nothing 
+>                     maybeplus (Just _) Nothing  = Nothing 
 >                     maybeplus (Just a) (Just b) = Just (a + b)						
 > 
->                     sumsDontMatch Nothing  x        = True
->                     sumsDontMatch (Just x) Nothing  = True
+>                     sumsDontMatch Nothing  _        = True
+>                     sumsDontMatch (Just _) Nothing  = True
 >                     sumsDontMatch (Just a) (Just b) = a /= b  
 >                       
 > 
+>
+>
 >                      
 >
 > isAllPositive :: (Signed a, Num a) => (Array (Int,Int) a) -> Bool
@@ -238,11 +246,11 @@
 >                     simpleSum l = foldl maybeplus (Just 0) (map toDouble l)
 > 
 >                     maybeplus Nothing  _        = Nothing
->                     maybeplus (Just a) Nothing  = Nothing 
+>                     maybeplus (Just _) Nothing  = Nothing 
 >                     maybeplus (Just a) (Just b) = Just (a + b)						
 > 
->                     sumsDontMatch Nothing  x        = True
->                     sumsDontMatch (Just x) Nothing  = True
+>                     sumsDontMatch Nothing  _        = True
+>                     sumsDontMatch (Just _) Nothing  = True
 >                     sumsDontMatch (Just a) (Just b) = a /= b  
 >
 >

@@ -9,17 +9,22 @@
 > import Text.LaTeX.Base.Writer
 
 
+>
+>
 > {- The functions in this module produce a LaTeX File that will compile to a document(article)
 > consisting of an introduction and a tikzPicture. The graphic shows the width of the intervals
 > ,i.e. the entries in an IPF matrix depending on the number of iterations.
 > The interface to the outside is the function buildGraphicOne.
 > -}
 > 
-
+> savePath = "IPFGraphResults/graphicIPF1.tex"
+>
+> {- the function to actually write th file, is called from Main -} 
+>
 > buildGraphicOne :: [[(Double,Double)]] -> IO()
 > buildGraphicOne list = (execLaTeXT
 >                      (thePreambleOne >> document (graphicTypeOne list) ))
->                      >>= renderFile "graphicIPF1.tex"
+>                      >>= renderFile savePath
 >
 > {-constants to scale the graphic appropriately-}
 >
@@ -59,7 +64,7 @@
 > errorTexFileOne = (execLaTeXT
 >                   (thePreambleOne >> document (maketitle >> fromString ("There was nothing to draw"))
 >                    ))
->                    >>= renderFile "graphicIPF1.tex"
+>                    >>= renderFile savePath
 
 
 > {- for every iteration a graphic is build that shows the width of all interval entries in the array -}
